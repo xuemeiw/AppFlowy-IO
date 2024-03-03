@@ -41,7 +41,6 @@ class ViewListener {
     void Function(MoveToTrashNotifiedValue)? onViewMoveToTrash,
   }) {
     if (_isDisposed) {
-      Log.warn("ViewListener is already disposed");
       return;
     }
 

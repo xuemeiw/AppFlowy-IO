@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -33,12 +34,8 @@ class FavoriteFolder extends StatelessWidget {
           return Column(
             children: [
               FavoriteHeader(
-                onPressed: () => context
-                    .read<FolderBloc>()
-                    .add(const FolderEvent.expandOrUnExpand()),
-                onAdded: () => context
-                    .read<FolderBloc>()
-                    .add(const FolderEvent.expandOrUnExpand(isExpanded: true)),
+                onPressed: () => context.read<FolderBloc>().add(const FolderEvent.expandOrUnExpand()),
+                onAdded: () => context.read<FolderBloc>().add(const FolderEvent.expandOrUnExpand(isExpanded: true)),
               ),
               if (state.isExpanded)
                 ...views.map(
@@ -54,13 +51,13 @@ class FavoriteFolder extends StatelessWidget {
                     level: 0,
                     onSelected: (view) {
                       if (HardwareKeyboard.instance.isControlPressed) {
-                        context.read<TabsBloc>().openTab(view);
+                        context.read<PanesBloc>().add(OpenTabInActivePane(plugin: view.plugin()));
                       }
 
-                      context.read<TabsBloc>().openPlugin(view);
+                      context.read<PanesBloc>().add(OpenPluginInActivePane(plugin: view.plugin()));
                     },
                     onTertiarySelected: (view) =>
-                        context.read<TabsBloc>().openTab(view),
+                        context.read<PanesBloc>().add(OpenTabInActivePane(plugin: view.plugin())),
                   ),
                 ),
             ],

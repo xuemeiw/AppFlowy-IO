@@ -239,6 +239,17 @@ extension CommonOperations on WidgetTester {
     await tapButtonWithName(ViewMoreActionType.openInNewTab.name);
   }
 
+  /// Tap the Split Right button
+  Future<void> tapSplitRightButton() async {
+    await tapPageOptionButton();
+    await tapButtonWithName(ViewMoreActionType.splitRight.name);
+  }
+
+  Future<void> tapSplitDownButton() async {
+    await tapPageOptionButton();
+    await tapButtonWithName(ViewMoreActionType.splitDown.name);
+  }
+
   /// Rename the page.
   Future<void> renamePage(String name) async {
     await tapRenamePageButton();
@@ -447,11 +458,38 @@ extension CommonOperations on WidgetTester {
   }
 
   // tap the button with [FlowySvgData]
-  Future<void> tapButtonWithFlowySvgData(FlowySvgData svg) async {
+  Future<void> tapButtonWithFlowySvgData(
+    FlowySvgData svg, [
+    bool first = true,
+  ]) async {
     final button = find.byWidgetPredicate(
       (widget) => widget is FlowySvg && widget.svg.path == svg.path,
     );
-    await tapButton(button);
+    first ? await tapButton(button.first) : await tapButton(button.last);
+  }
+
+  Future<void> openViewInNewPane(
+    String name,
+    ViewLayoutPB layout, [
+    Axis axis = Axis.vertical,
+  ]) async {
+    await hoverOnPageName(
+      name,
+      onHover: () async {
+        if (axis == Axis.vertical) {
+          await tapSplitRightButton();
+        } else {
+          await tapSplitDownButton();
+        }
+        await pumpAndSettle();
+      },
+    );
+  }
+
+  Future<void> closePaneWithVisibleCloseButton({
+    bool first = true,
+  }) async {
+    await tapButtonWithFlowySvgData(FlowySvgs.close_s, first);
   }
 
   // update the page icon in the sidebar

@@ -8,36 +8,28 @@ class DraggableItem<T extends Object> extends StatefulWidget {
     required this.data,
     this.feedback,
     this.childWhenDragging,
-    this.onAcceptWithDetails,
-    this.onWillAcceptWithDetails,
-    this.onMove,
-    this.onLeave,
+    this.dragAnchorStrategy,
     this.enableAutoScroll = true,
     this.hitTestSize = const Size(100, 100),
     this.onDragging,
   });
 
-  final T data;
-
   final Widget child;
+  final T data;
   final Widget? feedback;
   final Widget? childWhenDragging;
-
-  final DragTargetAcceptWithDetails<T>? onAcceptWithDetails;
-  final DragTargetWillAcceptWithDetails<T>? onWillAcceptWithDetails;
-  final DragTargetMove<T>? onMove;
-  final DragTargetLeave<T>? onLeave;
+  final Offset Function(Draggable<Object>, BuildContext, Offset)? dragAnchorStrategy;
 
   /// Whether to enable auto scroll when dragging.
   ///
   /// If true, the draggable item must be wrapped inside a [Scrollable] widget.
   final bool enableAutoScroll;
-  final Size hitTestSize;
 
+  final Size hitTestSize;
   final void Function(bool isDragging)? onDragging;
 
   @override
-  State<DraggableItem<T>> createState() => _DraggableItemState<T>();
+  State<DraggableItem> createState() => _DraggableItemState<T>();
 }
 
 class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
@@ -56,34 +48,29 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   Widget build(BuildContext context) {
     initAutoScrollerIfNeeded(context);
 
-    return DragTarget(
-      onAcceptWithDetails: widget.onAcceptWithDetails,
-      onWillAcceptWithDetails: widget.onWillAcceptWithDetails,
-      onMove: widget.onMove,
-      onLeave: widget.onLeave,
-      builder: (_, __, ___) => _Draggable<T>(
-        data: widget.data,
-        feedback: widget.feedback ?? widget.child,
-        childWhenDragging: widget.childWhenDragging ?? widget.child,
-        child: widget.child,
-        onDragUpdate: (details) {
-          if (widget.enableAutoScroll) {
-            dragTarget = details.globalPosition & widget.hitTestSize;
-            autoScroller?.startAutoScrollIfNecessary(dragTarget!);
-          }
-          widget.onDragging?.call(true);
-        },
-        onDragEnd: (details) {
-          autoScroller?.stopAutoScroll();
-          dragTarget = null;
-          widget.onDragging?.call(false);
-        },
-        onDraggableCanceled: (_, __) {
-          autoScroller?.stopAutoScroll();
-          dragTarget = null;
-          widget.onDragging?.call(false);
-        },
-      ),
+    return _Draggable<T>(
+      data: widget.data,
+      feedback: widget.feedback ?? widget.child,
+      childWhenDragging: widget.childWhenDragging ?? widget.child,
+      onDragUpdate: (details) {
+        if (widget.enableAutoScroll) {
+          dragTarget = details.globalPosition & widget.hitTestSize;
+          autoScroller?.startAutoScrollIfNecessary(dragTarget!);
+        }
+        widget.onDragging?.call(true);
+      },
+      onDragEnd: (details) {
+        autoScroller?.stopAutoScroll();
+        dragTarget = null;
+        widget.onDragging?.call(false);
+      },
+      onDraggableCanceled: (_, __) {
+        autoScroller?.stopAutoScroll();
+        dragTarget = null;
+        widget.onDragging?.call(false);
+      },
+      dragAnchorStrategy: widget.dragAnchorStrategy,
+      child: widget.child,
     );
   }
 
@@ -124,25 +111,24 @@ class _Draggable<T extends Object> extends StatelessWidget {
     this.onDraggableCanceled,
     this.onDragEnd,
     this.onDragCompleted,
+    this.dragAnchorStrategy,
   });
+
+  final Widget child;
+  final Widget feedback;
+  final Widget? childWhenDragging;
 
   /// The data that will be dropped by this draggable.
   final T? data;
-
-  final Widget child;
-
-  final Widget? childWhenDragging;
-  final Widget feedback;
 
   /// Called when the draggable starts being dragged.
   final VoidCallback? onDragStarted;
 
   final DragUpdateCallback? onDragUpdate;
-
   final DraggableCanceledCallback? onDraggableCanceled;
-
-  final VoidCallback? onDragCompleted;
   final DragEndCallback? onDragEnd;
+  final VoidCallback? onDragCompleted;
+  final Offset Function(Draggable<Object>, BuildContext, Offset)? dragAnchorStrategy;
 
   @override
   Widget build(BuildContext context) {
@@ -163,6 +149,7 @@ class _Draggable<T extends Object> extends StatelessWidget {
             onDragUpdate: onDragUpdate,
             onDragEnd: onDragEnd,
             onDraggableCanceled: onDraggableCanceled,
+            dragAnchorStrategy: dragAnchorStrategy ?? childDragAnchorStrategy,
             child: child,
           );
   }

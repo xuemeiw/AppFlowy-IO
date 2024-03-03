@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
@@ -10,6 +8,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // workspaces / ... / view_title
@@ -217,7 +216,11 @@ class _ViewTitleState extends State<_ViewTitle> {
 
     if (widget.behavior == _ViewTitleBehavior.uneditable) {
       return Listener(
-        onPointerDown: (_) => context.read<TabsBloc>().openPlugin(widget.view),
+        onPointerDown: (_) => context.read<PanesBloc>().add(
+              OpenPluginInActivePane(
+                plugin: widget.view.plugin(),
+              ),
+            ),
         child: FlowyButton(
           useIntrinsicWidth: true,
           onTap: () {},

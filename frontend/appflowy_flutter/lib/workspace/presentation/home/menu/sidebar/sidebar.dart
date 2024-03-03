@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
@@ -14,10 +12,10 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_trash.
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
-    show UserProfilePB;
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Home Sidebar is the left side bar of the home page.
@@ -55,10 +53,11 @@ class HomeSideBar extends StatelessWidget {
       child: MultiBlocListener(
         listeners: [
           BlocListener<MenuBloc, MenuState>(
-            listenWhen: (p, c) =>
-                p.lastCreatedView?.id != c.lastCreatedView?.id,
-            listener: (context, state) => context.read<TabsBloc>().add(
-                  TabsEvent.openPlugin(plugin: state.lastCreatedView!.plugin()),
+            listenWhen: (p, c) => p.lastCreatedView?.id != c.lastCreatedView?.id,
+            listener: (context, state) => context.read<PanesBloc>().add(
+                  OpenPluginInActivePane(
+                    plugin: state.lastCreatedView!.plugin(),
+                  ),
                 ),
           ),
           BlocListener<NotificationActionBloc, NotificationActionState>(
@@ -142,8 +141,7 @@ class HomeSideBar extends StatelessWidget {
     final action = state.action;
     if (action != null) {
       if (action.type == ActionType.openView) {
-        final view =
-            context.read<MenuBloc>().state.views.findView(action.objectId);
+        final view = context.read<MenuBloc>().state.views.findView(action.objectId);
 
         if (view != null) {
           final Map<String, dynamic> arguments = {};
@@ -160,7 +158,15 @@ class HomeSideBar extends StatelessWidget {
             arguments[PluginArgumentKeys.rowId] = rowId;
           }
 
-          context.read<TabsBloc>().openPlugin(view, arguments: arguments);
+          // context.read<TabsBloc>().openPlugin(view, arguments: arguments);
+
+          context.read<PanesBloc>().add(
+                OpenPluginInActivePane(
+                  plugin: view.plugin(
+                    arguments: arguments,
+                  ),
+                ),
+              );
         }
       }
     }

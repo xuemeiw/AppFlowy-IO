@@ -19,9 +19,16 @@ class ViewPluginNotifier extends PluginNotifier<DeletedViewPB?> {
 
   ViewPB view;
   final ViewListener? _viewListener;
+  bool _readOnlyStatus = false;
 
   @override
   final ValueNotifier<DeletedViewPB?> isDeleted = ValueNotifier(null);
+
+  @override
+  bool get readOnlyStatus => _readOnlyStatus;
+
+  @override
+  set readOnlyStatus(bool value) => _readOnlyStatus = value;
 
   @override
   void dispose() {

@@ -1,17 +1,17 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
+import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 
 typedef KeyDownHandler = void Function(HotKey hotKey);
+typedef KeyUpHandler = void Function(HotKey hotKey);
 
 /// Helper class that utilizes the global [HotKeyManager] to easily
 /// add a [HotKey] with different handlers.
@@ -24,17 +24,22 @@ class HotKeyItem {
   HotKeyItem({
     required this.hotKey,
     this.keyDownHandler,
+    this.keyUpHandler,
   });
 
   final HotKey hotKey;
   final KeyDownHandler? keyDownHandler;
+  final KeyUpHandler? keyUpHandler;
 
-  void register() =>
-      hotKeyManager.register(hotKey, keyDownHandler: keyDownHandler);
+  void register() => hotKeyManager.register(
+        hotKey,
+        keyDownHandler: keyDownHandler,
+        keyUpHandler: keyUpHandler,
+      );
 }
 
 class HomeHotKeys extends StatelessWidget {
-  const HomeHotKeys({required this.child, super.key});
+  const HomeHotKeys({super.key, required this.child});
 
   final Widget child;
 
@@ -48,9 +53,7 @@ class HomeHotKeys extends StatelessWidget {
         // Set hotkey scope (default is HotKeyScope.system)
         scope: HotKeyScope.inapp, // Set as inapp-wide hotkey.
       ),
-      keyDownHandler: (_) => context
-          .read<HomeSettingBloc>()
-          .add(const HomeSettingEvent.collapseMenu()),
+      keyDownHandler: (_) => context.read<HomeSettingBloc>().add(const HomeSettingEvent.collapseMenu()),
     ).register();
 
     // Toggle theme mode light/dark
@@ -63,8 +66,7 @@ class HomeHotKeys extends StatelessWidget {
         ],
         scope: HotKeyScope.inapp,
       ),
-      keyDownHandler: (_) =>
-          context.read<AppearanceSettingsCubit>().toggleThemeMode(),
+      keyDownHandler: (_) => context.read<AppearanceSettingsCubit>().toggleThemeMode(),
     ).register();
 
     // Close current tab
@@ -74,8 +76,7 @@ class HomeHotKeys extends StatelessWidget {
         modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         scope: HotKeyScope.inapp,
       ),
-      keyDownHandler: (_) =>
-          context.read<TabsBloc>().add(const TabsEvent.closeCurrentTab()),
+      keyDownHandler: (_) => context.read<PanesBloc>().add(const CloseCurrentTab()),
     ).register();
 
     // Go to previous tab
@@ -98,14 +99,24 @@ class HomeHotKeys extends StatelessWidget {
       keyDownHandler: (_) => _selectTab(context, 1),
     ).register();
 
+    // Enable pane drag
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.controlLeft,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => _setDragStatus(context, true),
+      keyUpHandler: (_) => _setDragStatus(context, false),
+    ).register();
+
     // Rename current view
     HotKeyItem(
       hotKey: HotKey(
         KeyCode.f2,
         scope: HotKeyScope.inapp,
       ),
-      keyDownHandler: (_) =>
-          getIt<RenameViewBloc>().add(const RenameViewEvent.open()),
+      keyDownHandler: (_) => getIt<RenameViewBloc>().add(const RenameViewEvent.open()),
     ).register();
 
     _asyncRegistration(context);
@@ -118,7 +129,14 @@ class HomeHotKeys extends StatelessWidget {
   }
 
   void _selectTab(BuildContext context, int change) {
-    final bloc = context.read<TabsBloc>();
-    bloc.add(TabsEvent.selectTab(bloc.state.currentIndex + change));
+    final bloc = context.read<PanesBloc>();
+    bloc.add(
+      SelectTab(
+        index: bloc.state.activePane.tabsController.currentIndex + change,
+      ),
+    );
   }
+
+  void _setDragStatus(BuildContext context, bool status) =>
+      context.read<PanesBloc>().add(SetDragStatus(status: status));
 }

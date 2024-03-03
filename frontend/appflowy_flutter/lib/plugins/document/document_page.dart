@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
@@ -15,6 +13,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 enum EditorNotificationType {
@@ -37,11 +36,13 @@ class DocumentPage extends StatefulWidget {
   const DocumentPage({
     super.key,
     required this.view,
+    required this.readOnlyStatus,
     required this.onDeleted,
     this.initialSelection,
   });
 
   final ViewPB view;
+  final bool readOnlyStatus;
   final VoidCallback onDeleted;
   final Selection? initialSelection;
 
@@ -64,8 +65,7 @@ class _DocumentPageState extends State<DocumentPage> {
       providers: [
         BlocProvider.value(value: getIt<NotificationActionBloc>()),
         BlocProvider(
-          create: (_) => DocumentBloc(view: widget.view)
-            ..add(const DocumentEvent.initial()),
+          create: (_) => DocumentBloc(view: widget.view)..add(const DocumentEvent.initial()),
         ),
       ],
       child: BlocBuilder<DocumentBloc, DocumentState>(
@@ -101,6 +101,7 @@ class _DocumentPageState extends State<DocumentPage> {
 
   Widget _buildEditorPage(BuildContext context, DocumentState state) {
     final appflowyEditorPage = AppFlowyEditorPage(
+      autoFocus: !widget.readOnlyStatus,
       editorState: state.editorState!,
       styleCustomizer: EditorStyleCustomizer(
         context: context,

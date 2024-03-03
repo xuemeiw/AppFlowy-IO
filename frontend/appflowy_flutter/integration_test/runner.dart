@@ -4,8 +4,7 @@ import 'appearance_settings_test.dart' as appearance_test_runner;
 import 'board/board_test_runner.dart' as board_test_runner;
 import 'database/database_calendar_test.dart' as database_calendar_test;
 import 'database/database_cell_test.dart' as database_cell_test;
-import 'database/database_field_settings_test.dart'
-    as database_field_settings_test;
+import 'database/database_field_settings_test.dart' as database_field_settings_test;
 import 'database/database_field_test.dart' as database_field_test;
 import 'database/database_filter_test.dart' as database_filter_test;
 import 'database/database_row_page_test.dart' as database_row_page_test;
@@ -15,15 +14,17 @@ import 'database/database_share_test.dart' as database_share_test;
 import 'database/database_sort_test.dart' as database_sort_test;
 import 'database/database_view_test.dart' as database_view_test;
 import 'document/document_test_runner.dart' as document_test_runner;
+import 'emoji_shortcut_test.dart' as emoji_shortcut_test;
 import 'empty_test.dart' as first_test;
 import 'hotkeys_test.dart' as hotkeys_test;
 import 'import_files_test.dart' as import_files_test;
+import 'panes/panes_overlay_test.dart' as panes_overlay_test;
+import 'panes/panes_test.dart' as panes_test;
 import 'settings/settings_runner.dart' as settings_test_runner;
 import 'share_markdown_test.dart' as share_markdown_test;
 import 'sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
 import 'switch_folder_test.dart' as switch_folder_test;
-import 'tabs_test.dart' as tabs_test;
-import 'emoji_shortcut_test.dart' as emoji_shortcut_test;
+import 'tabs/tabs_test.dart' as tabs_test;
 // import 'auth/supabase_auth_test.dart' as supabase_auth_test_runner;
 
 /// The main task runner for all integration tests in AppFlowy.
@@ -67,6 +68,10 @@ Future<void> main() async {
 
   // Tabs
   tabs_test.main();
+
+  //Panes
+  panes_test.main();
+  panes_overlay_test.main();
 
   // Others
   hotkeys_test.main();

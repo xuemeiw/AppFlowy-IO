@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -30,7 +32,12 @@ class NavigationNotifier with ChangeNotifier {
 }
 
 class FlowyNavigation extends StatelessWidget {
-  const FlowyNavigation({super.key});
+  const FlowyNavigation({
+    super.key,
+    required this.currentPaneId,
+  });
+
+  final String currentPaneId;
 
   @override
   Widget build(BuildContext context) {
@@ -49,9 +56,7 @@ class FlowyNavigation extends StatelessWidget {
             Selector<NavigationNotifier, List<NavigationItem>>(
               selector: (context, notifier) => notifier.navigationItems,
               builder: (ctx, items, child) => Expanded(
-                child: Row(
-                  children: _renderNavigationItems(items),
-                ),
+                child: Row(children: _renderNavigationItems(items)),
               ),
             ),
           ],
@@ -64,7 +69,8 @@ class FlowyNavigation extends StatelessWidget {
     return BlocBuilder<HomeSettingBloc, HomeSettingState>(
       buildWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
       builder: (context, state) {
-        if (state.isMenuCollapsed) {
+        final currentActivePane = getIt<PanesBloc>().state.firstLeafNode;
+        if (state.isMenuCollapsed && currentPaneId == currentActivePane.paneId) {
           return RotationTransition(
             turns: const AlwaysStoppedAnimation(180 / 360),
             child: FlowyTooltip(
@@ -75,11 +81,7 @@ class FlowyNavigation extends StatelessWidget {
               child: FlowyIconButton(
                 width: 24,
                 hoverColor: Colors.transparent,
-                onPressed: () {
-                  context
-                      .read<HomeSettingBloc>()
-                      .add(const HomeSettingEvent.collapseMenu());
-                },
+                onPressed: () => context.read<HomeSettingBloc>().add(const HomeSettingEvent.collapseMenu()),
                 iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
                 icon: FlowySvg(
                   FlowySvgs.hide_menu_m,
@@ -88,9 +90,9 @@ class FlowyNavigation extends StatelessWidget {
               ),
             ),
           );
-        } else {
-          return const SizedBox.shrink();
         }
+
+        return const SizedBox.shrink();
       },
     );
   }
@@ -127,9 +129,9 @@ class FlowyNavigation extends StatelessWidget {
         EllipsisNaviItem(items: ellipsisItems),
         ...last,
       ];
-    } else {
-      return items;
     }
+
+    return items;
   }
 }
 
@@ -139,11 +141,7 @@ class NaviItemWidget extends StatelessWidget {
   final NavigationItem item;
 
   @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: item.leftBarItem.padding(horizontal: 2, vertical: 2),
-    );
-  }
+  Widget build(BuildContext context) => Expanded(child: item.leftBarItem.padding(horizontal: 2, vertical: 2));
 }
 
 class NaviItemDivider extends StatelessWidget {
@@ -152,23 +150,16 @@ class NaviItemDivider extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [child, const Text('/')],
-    );
-  }
+  Widget build(BuildContext context) => Row(children: [child, const Text('/')]);
 }
 
 class EllipsisNaviItem extends NavigationItem {
-  EllipsisNaviItem({required this.items});
+  const EllipsisNaviItem({required this.items});
 
   final List<NavigationItem> items;
 
   @override
-  Widget get leftBarItem => FlowyText.medium(
-        '...',
-        fontSize: FontSizes.s16,
-      );
+  Widget get leftBarItem => FlowyText.medium('...', fontSize: FontSizes.s16);
 
   @override
   Widget tabBarItem(String pluginId) => leftBarItem;
@@ -177,8 +168,7 @@ class EllipsisNaviItem extends NavigationItem {
   NavigationCallback get action => (id) {};
 }
 
-TextSpan sidebarTooltipTextSpan(BuildContext context, String hintText) =>
-    TextSpan(
+TextSpan sidebarTooltipTextSpan(BuildContext context, String hintText) => TextSpan(
       children: [
         TextSpan(
           text: "$hintText\n",

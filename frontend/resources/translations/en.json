@@ -102,7 +102,11 @@
     "openNewTab": "Open in a new tab",
     "moveTo": "Move to",
     "addToFavorites": "Add to Favorites",
-    "copyLink": "Copy Link"
+    "copyLink": "Copy Link",
+    "splitDown": "Split Down",
+    "splitRight": "Split Right",
+    "splitLeft": "Split Left",
+    "splitUp": "Split Up"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
@@ -110,6 +114,7 @@
   "newGridText": "New grid",
   "newCalendarText": "New calendar",
   "newBoardText": "New board",
+  "readOnlyViewText":"Read only view",
   "trash": {
     "text": "Trash",
     "restoreAll": "Restore All",

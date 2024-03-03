@@ -3,7 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -133,9 +133,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
         const Space(7, 0),
         PopoverActionList<_ActionWrapper>(
           direction: PopoverDirection.bottomWithCenterAligned,
-          actions: _ActionType.values
-              .map((action) => _ActionWrapper(action))
-              .toList(),
+          actions: _ActionType.values.map((action) => _ActionWrapper(action)).toList(),
           buildChild: (controller) => FlowyIconButton(
             tooltipText: LocaleKeys.tooltip_openMenu.tr(),
             width: 24,
@@ -150,12 +148,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           onSelected: (action, controller) async {
             switch (action.inner) {
               case _ActionType.viewDatabase:
-                getIt<TabsBloc>().add(
-                  TabsEvent.openPlugin(
-                    plugin: viewPB.plugin(),
-                    view: viewPB,
-                  ),
-                );
+                getIt<PanesBloc>().add(OpenTabInActivePane(plugin: viewPB.plugin()));
                 break;
               case _ActionType.delete:
                 final transaction = widget.editorState.transaction;

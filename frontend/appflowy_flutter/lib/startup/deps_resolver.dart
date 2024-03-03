@@ -19,12 +19,12 @@ import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/application/settings/appearance/desktop_appearance.dart';
 import 'package:appflowy/workspace/application/settings/appearance/mobile_appearance.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
@@ -35,6 +35,8 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
+import 'package:flowy_infra/file_picker/file_picker_impl.dart';
+import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
@@ -184,9 +186,9 @@ void _resolveHomeDeps(GetIt getIt) {
     (view, _) => DocShareBloc(view: view),
   );
 
-  getIt.registerSingleton<NotificationActionBloc>(NotificationActionBloc());
+  getIt.registerLazySingleton<PanesBloc>(() => PanesBloc());
 
-  getIt.registerLazySingleton<TabsBloc>(() => TabsBloc());
+  getIt.registerSingleton<NotificationActionBloc>(NotificationActionBloc());
 
   getIt.registerSingleton<ReminderBloc>(ReminderBloc());
 

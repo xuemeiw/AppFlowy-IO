@@ -8,10 +8,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-import 'util/base.dart';
-import 'util/common_operations.dart';
-import 'util/expectation.dart';
-import 'util/keyboard.dart';
+import '../util/base.dart';
+import '../util/common_operations.dart';
+import '../util/expectation.dart';
+import '../util/keyboard.dart';
 
 const _documentName = 'First Doc';
 const _documentTwoName = 'Second Doc';

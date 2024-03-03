@@ -10,28 +10,30 @@ import 'package:sized_context/sized_context.dart';
 import 'home_sizes.dart';
 
 class HomeLayout {
-  HomeLayout(BuildContext context) {
+  HomeLayout(BuildContext context, BoxConstraints homeScreenConstraint) {
     final homeSetting = context.read<HomeSettingBloc>().state;
     showEditPanel = homeSetting.panelContext != null;
     menuWidth = Sizes.sideBarWidth;
     menuWidth += homeSetting.resizeOffset;
 
     final screenWidthPx = context.widthPx;
-    context
-        .read<HomeSettingBloc>()
-        .add(HomeSettingEvent.checkScreenSize(screenWidthPx));
+    context.read<HomeSettingBloc>().add(HomeSettingEvent.checkScreenSize(screenWidthPx));
 
     showMenu = !homeSetting.isMenuCollapsed;
     if (showMenu) {
       menuIsDrawer = context.widthPx <= PageBreaks.tabletPortrait;
     }
 
-    homePageLOffset = (showMenu && !menuIsDrawer) ? menuWidth : 0.0;
+    homePageLOffset = showMenu ? menuWidth : 0.0;
 
     menuSpacing = !showMenu && Platform.isMacOS ? 80.0 : 0.0;
     animDuration = homeSetting.resizeType.duration();
     editPanelWidth = HomeSizes.editPanelWidth;
     homePageROffset = showEditPanel ? editPanelWidth : 0;
+
+    homePageWidth = homeScreenConstraint.maxWidth -
+        (homeSetting.isMenuCollapsed ? 0 : Sizes.sideBarWidth + homeSetting.resizeOffset);
+    homePageHeight = homeScreenConstraint.maxHeight;
   }
 
   late bool showEditPanel;
@@ -43,4 +45,6 @@ class HomeLayout {
   late Duration animDuration;
   late double editPanelWidth;
   late double homePageROffset;
+  late double homePageWidth;
+  late double homePageHeight;
 }
