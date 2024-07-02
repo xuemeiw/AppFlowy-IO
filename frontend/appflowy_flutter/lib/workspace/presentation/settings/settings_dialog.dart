@@ -41,7 +41,8 @@ class SettingsDialog extends StatelessWidget {
       child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
         builder: (context, state) => FlowyDialog(
           width: MediaQuery.of(context).size.width * 0.7,
-          constraints: const BoxConstraints(maxWidth: 784, minWidth: 564),
+          constraints: const BoxConstraints(maxWidth: 894, minWidth: 674),
+          heightFactor: 0.8,
           child: ScaffoldMessenger(
             child: Scaffold(
               backgroundColor: Colors.transparent,
@@ -49,7 +50,7 @@ class SettingsDialog extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
-                    width: 200,
+                    width: 230,
                     child: SettingsMenu(
                       userProfile: user,
                       changeSelectedPage: (index) => context
