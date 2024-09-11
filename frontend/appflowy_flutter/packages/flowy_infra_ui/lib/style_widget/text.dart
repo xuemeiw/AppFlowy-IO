@@ -18,6 +18,7 @@ class FlowyText extends StatelessWidget {
   final List<String>? fallbackFontFamily;
   final bool withTooltip;
   final StrutStyle? strutStyle;
+  final TextDirection? textDirection;
   final bool isEmoji;
 
   /// this is used to control the line height in Flutter.
@@ -47,6 +48,7 @@ class FlowyText extends StatelessWidget {
     this.withTooltip = false,
     this.isEmoji = false,
     this.strutStyle,
+    this.textDirection,
     this.optimizeEmojiAlign = false,
   });
 
@@ -65,6 +67,7 @@ class FlowyText extends StatelessWidget {
     this.withTooltip = false,
     this.isEmoji = false,
     this.strutStyle,
+    this.textDirection,
     this.figmaLineHeight,
     this.optimizeEmojiAlign = false,
   })  : fontWeight = FontWeight.w400,
@@ -86,6 +89,7 @@ class FlowyText extends StatelessWidget {
     this.withTooltip = false,
     this.isEmoji = false,
     this.strutStyle,
+    this.textDirection,
     this.figmaLineHeight,
     this.optimizeEmojiAlign = false,
   }) : fontWeight = FontWeight.w400;
@@ -106,6 +110,7 @@ class FlowyText extends StatelessWidget {
     this.withTooltip = false,
     this.isEmoji = false,
     this.strutStyle,
+    this.textDirection,
     this.figmaLineHeight,
     this.optimizeEmojiAlign = false,
   }) : fontWeight = FontWeight.w500;
@@ -126,6 +131,7 @@ class FlowyText extends StatelessWidget {
     this.withTooltip = false,
     this.isEmoji = false,
     this.strutStyle,
+    this.textDirection,
     this.figmaLineHeight,
     this.optimizeEmojiAlign = false,
   }) : fontWeight = FontWeight.w600;
@@ -144,6 +150,7 @@ class FlowyText extends StatelessWidget {
     this.lineHeight,
     this.withTooltip = false,
     this.strutStyle = const StrutStyle(forceStrutHeight: true),
+    this.textDirection,
     this.isEmoji = true,
     this.fontFamily,
     this.figmaLineHeight,
@@ -202,6 +209,7 @@ class FlowyText extends StatelessWidget {
           maxLines: maxLines,
           textAlign: textAlign,
           style: textStyle,
+          textDirection: textDirection,
         ),
       );
     } else {
@@ -211,6 +219,7 @@ class FlowyText extends StatelessWidget {
         textAlign: textAlign,
         overflow: overflow ?? TextOverflow.clip,
         style: textStyle,
+        textDirection: textDirection,
         strutStyle: !isEmoji || (isEmoji && optimizeEmojiAlign)
             ? StrutStyle.fromTextStyle(
                 textStyle,
